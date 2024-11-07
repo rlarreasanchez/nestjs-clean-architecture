@@ -1,21 +1,19 @@
 import { Inject, Injectable } from "@nestjs/common";
 
 import {
-  EXCEPTIONS_SERVICE_TOKEN,
   LOGGER_SERVICE_TOKEN,
   TODOS_REPOSITORY_TOKEN,
 } from "@domain/constants/tokens.constants";
 import { TodoEntity } from "@domain/entities/todo.entity";
 import { ILogger } from "@domain/logger/logger.interface";
-import { IException } from "@domain/exceptions/exceptions.interface";
 import { ITodosRepository } from "@domain/repositories/todos-repository.interface";
+
+import { EntityAlreadyExistsException } from "@application/exceptions/logical-exceptions";
 
 @Injectable()
 export class CreateTodoUseCase {
   constructor(
     @Inject(LOGGER_SERVICE_TOKEN) private readonly logger: ILogger,
-    @Inject(EXCEPTIONS_SERVICE_TOKEN)
-    private readonly exceptionsService: IException,
     @Inject(TODOS_REPOSITORY_TOKEN)
     private readonly todoRepository: ITodosRepository
   ) {}
@@ -42,9 +40,11 @@ export class CreateTodoUseCase {
 
     if (!todo) return;
 
-    this.exceptionsService.badRequestException({
-      message: "Title already exists",
-      error: "TODO_TITLE_ALREADY_EXISTS",
-    });
+    throw new EntityAlreadyExistsException(
+      "Todo",
+      "title",
+      title,
+      "TODO_TITLE_ALREADY_EXISTS"
+    );
   }
 }

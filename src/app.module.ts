@@ -3,7 +3,6 @@ import { Module } from "@nestjs/common";
 import * as Joi from "joi";
 
 import { LoggerModule } from "@infrastructure/logger/logger.module";
-import { ExceptionsModule } from "@infrastructure/exceptions/exceptions.module";
 
 import { TodosModule } from "@application/todos/todos.module";
 
@@ -25,7 +24,6 @@ import { ConfigModule } from "@nestjs/config";
       }),
     }),
     LoggerModule,
-    ExceptionsModule,
     TodosModule,
   ],
   controllers: [TodosController],

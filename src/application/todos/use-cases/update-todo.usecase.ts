@@ -1,7 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 
 import {
-  EXCEPTIONS_SERVICE_TOKEN,
   LOGGER_SERVICE_TOKEN,
   TODOS_REPOSITORY_TOKEN,
 } from "@domain/constants/tokens.constants";
@@ -10,7 +9,6 @@ import { ILogger } from "@domain/logger/logger.interface";
 import { ITodosRepository } from "@domain/repositories/todos-repository.interface";
 
 import { UpdateTodoInput } from "../inputs/update-todo.input";
-import { DatabaseException } from "@infrastructure/exceptions/technical-exceptions";
 
 @Injectable()
 export class UpdateTodoUseCase {

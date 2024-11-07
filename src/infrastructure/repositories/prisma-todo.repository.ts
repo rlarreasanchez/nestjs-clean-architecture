@@ -3,12 +3,12 @@ import { Injectable } from "@nestjs/common";
 import { TodoEntity } from "@domain/entities/todo.entity";
 import { ITodosRepository } from "@domain/repositories/todos-repository.interface";
 
-import { TodoModel } from "@infrastructure/models/todo.model";
-import { PrismaService } from "@infrastructure/prisma/prisma.service";
 import {
   DatabaseException,
   EntityNotFoundException,
 } from "@infrastructure/exceptions/technical-exceptions";
+import { TodoModel } from "@infrastructure/models/todo.model";
+import { PrismaService } from "@infrastructure/prisma/prisma.service";
 
 @Injectable()
 export class PrismaTodoRepository implements ITodosRepository {
