@@ -17,6 +17,9 @@ import {
 
 import { AppModule } from "./app.module";
 import { ConfigService } from "@nestjs/config";
+import * as cookie from "@fastify/cookie";
+import Redis from "ioredis";
+import fastifySession from "@fastify/session";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -26,6 +29,48 @@ async function bootstrap() {
 
   // Config
   const config = app.get(ConfigService);
+
+  // Registry cookie plugin
+  await app.register(cookie, {
+    secret: config.get("COOKIE_SECRET"),
+  });
+
+  // Registry Redis plugin
+  const redisClient = new Redis({
+    host: config.get("REDIS_HOST"),
+    port: config.get("REDIS_PORT"),
+  });
+
+  // Registry session plugin
+  app.register(fastifySession, {
+    secret: config.get("SESSION_SECRET"),
+    store: {
+      get: (sessionId: string, callback) => {
+        redisClient.get(sessionId, (err, result) => {
+          callback(err, result ? JSON.parse(result) : null);
+        });
+      },
+      set: (sessionId, sessionContent, callback) => {
+        const ttl: number = config.get("SESSION_EXPIRES_IN_SECONDS");
+        redisClient.setex(
+          sessionId,
+          ttl,
+          JSON.stringify(sessionContent),
+          callback
+        );
+      },
+      destroy: (sessionId, callback) => {
+        redisClient.del(sessionId, callback);
+      },
+    },
+    cookie: {
+      path: "/",
+      httpOnly: true,
+      secure: config.get("NODE_ENV") === "production", // Only send cookie over HTTPS
+      maxAge: config.get("SESSION_EXPIRES_IN_SECONDS") * 10 * 10,
+    },
+    saveUninitialized: false, // No guardar sesiones vacías
+  });
 
   // Filter
   const logger = app.get(LOGGER_SERVICE_TOKEN);
