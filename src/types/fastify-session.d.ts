@@ -1,3 +1,4 @@
+import { UserEntity } from "@domain/entities/user.entity";
 import "fastify";
 
 declare module "fastify" {
@@ -7,6 +8,7 @@ declare module "fastify" {
 
   interface Session extends Session {
     userId: string;
-    username: string;
+    userData: UserEntity;
+    lastUpdate: number;
   }
 }

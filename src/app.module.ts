@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
 import * as Joi from "joi";
@@ -6,7 +6,7 @@ import * as Joi from "joi";
 import { LoggerModule } from "@infrastructure/logger/logger.module";
 
 import { AuthModule } from "@application/auth/auth.module";
-import { UserModule } from "./application/user/user.module";
+import { UserModule } from "@application/user/user.module";
 import { TodosModule } from "@application/todos/todos.module";
 
 import { TodosController } from "@presentation/http/todos/todos.controller";
@@ -22,7 +22,7 @@ import { AuthController } from "@presentation/http/auth/auth.controller";
           .required(),
         PORT: Joi.number().default(3000),
         DEBUG: Joi.boolean().default(false),
-        PRISMA_SCHEMA: Joi.string().optional(),
+        PRISMA_SCHEMA: Joi.string().optional().allow(""),
         DATABASE_URL: Joi.string().required(),
         LDAP_SERVER: Joi.string().required(),
         LDAP_BASE_DN: Joi.string().required(),

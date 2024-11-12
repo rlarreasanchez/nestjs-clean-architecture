@@ -23,7 +23,6 @@ export class LdapUserRepository implements IUserRepository {
 
       return UserMapper.ldapUserModeltoUserEntity(result[0] as LdapUserModel);
     } catch (error) {
-      console.error(error);
       throw new LdapServerException(
         error.message,
         "LDAP_GET_USER_SERVER_ERROR"

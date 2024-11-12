@@ -16,9 +16,8 @@ import { AuthService } from "@application/auth/auth.service";
 
 import { LoginDto } from "./dtos/login.dto";
 import { AuthPresenter } from "./auth.presenter";
-import { CookieAuthGuard } from "../common/guards/auth-cookie.guard";
+import { AuthSessionGuard } from "../common/guards/auth-session.guard";
 import { ApiResponseType } from "../common/swagger/response.decorator";
-import { UserService } from "@application/user/user.service";
 
 @Controller({
   path: "auth",
@@ -27,10 +26,7 @@ import { UserService } from "@application/user/user.service";
 @ApiResponse({ status: 500, description: "Internal error" })
 @ApiExtraModels(AuthPresenter)
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post("login")
   @HttpCode(200)
@@ -40,12 +36,14 @@ export class AuthController {
     const user = await this.authService.authenticate(username, password);
 
     req.session.userId = username;
+    req.session.userData = user;
+    req.session.lastUpdate = Date.now();
 
     return new AuthPresenter(user);
   }
 
   @Post("logout")
-  @UseGuards(CookieAuthGuard)
+  @UseGuards(AuthSessionGuard)
   @HttpCode(204)
   async logout(@Req() req: Request, @Res() res: Response) {
     req.session.destroy((err) => {
@@ -62,9 +60,9 @@ export class AuthController {
   }
 
   @Get("me")
-  @UseGuards(CookieAuthGuard)
+  @UseGuards(AuthSessionGuard)
   @HttpCode(200)
   async me(@Req() req: Request) {
-    return this.userService.getUserByUsername(req.session.userId);
+    return req.session.userData;
   }
 }

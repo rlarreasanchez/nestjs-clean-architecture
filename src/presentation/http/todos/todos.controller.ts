@@ -21,13 +21,13 @@ import { TodoPresenter } from "./todo.presenter";
 import { CreateTodoDto } from "./dtos/create-todo.dto";
 import { UpdateTodoDto } from "./dtos/update-todo.dto";
 import { FastifyRequest as Request } from "fastify";
-import { CookieAuthGuard } from "../common/guards/auth-cookie.guard";
+import { AuthSessionGuard } from "../common/guards/auth-session.guard";
 
 @Controller({
   path: "todos",
   version: "1",
 })
-@UseGuards(CookieAuthGuard)
+@UseGuards(AuthSessionGuard)
 @ApiTags("Todos")
 @ApiResponse({ status: 500, description: "Internal error" })
 @ApiExtraModels(TodoPresenter)
