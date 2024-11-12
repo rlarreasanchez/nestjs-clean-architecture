@@ -1,7 +1,8 @@
-import { AUTH_REPOSITORY_TOKEN } from "@domain/constants/tokens.constants";
-import { AuthResult } from "@domain/entities/auth-result.entity";
-import { IAuthRepository } from "@domain/repositories/auth-repository.interface";
 import { Inject } from "@nestjs/common";
+
+import { UserEntity } from "@domain/entities/user.entity";
+import { AUTH_REPOSITORY_TOKEN } from "@domain/constants/tokens.constants";
+import { IAuthRepository } from "@domain/repositories/auth-repository.interface";
 
 export class AuthenticateUserUseCase {
   constructor(
@@ -9,7 +10,7 @@ export class AuthenticateUserUseCase {
     private readonly authRepository: IAuthRepository
   ) {}
 
-  async execute(username: string, password: string): Promise<AuthResult> {
+  async execute(username: string, password: string): Promise<UserEntity> {
     return this.authRepository.authenticate(username, password);
   }
 }

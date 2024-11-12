@@ -11,17 +11,11 @@ export class CookieAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
 
-    console.log({
-      userId: request.session.userId,
-      expires: request.session.cookie.expires,
-      sessionId: request.session.sessionId,
-    });
-
-    // Valida la cookie
+    // Session is not present or user is not logged in
     if (!request.session || !request.session.userId) {
       throw new UnauthorizedException("Unauthorized");
     }
 
-    return true; // Permite la solicitud si todo es válido
+    return true;
   }
 }

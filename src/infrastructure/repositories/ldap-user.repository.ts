@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { UserEntity } from "@domain/entities/user.entity";
-import { IAuthRepository } from "@domain/repositories/auth-repository.interface";
+import { IUserRepository } from "@domain/repositories/user-repository.interface";
 
 import {
   LdapInvalidCredentialsException,
@@ -12,29 +12,29 @@ import { UserMapper } from "@infrastructure/models/mappers/user.mapper";
 import { LdapUserModel } from "@infrastructure/models/ldap-user.model";
 
 @Injectable()
-export class LdapAuthRepository implements IAuthRepository {
+export class LdapUserRepository implements IUserRepository {
   constructor(private readonly ldapClient: LdapService) {}
-  async authenticate(username: string, password: string): Promise<UserEntity> {
+  async getUserByUsername(username: string): Promise<UserEntity | null> {
     try {
-      await this.ldapClient.bind(username, password);
+      if (!username || username === "") {
+        // TODO: Use a custom exception
+        throw new Error("Username is required");
+      }
 
       const result = await this.ldapClient.searchByUsername({
         username,
-        isActive: true,
       });
 
-      return UserMapper.ldapUserModeltoUserEntity(result[0] as LdapUserModel);
-    } catch (error: any) {
-      // LDAP error code 49 means invalid credentials
-      if (error.code === 49) {
-        throw new LdapInvalidCredentialsException(
-          "Invalid credentials",
-          "LDAP_AUTHENTICATE_CREDENTIALS_ERROR"
-        );
+      if (!result || result.length === 0) {
+        return null;
       }
+
+      return UserMapper.ldapUserModeltoUserEntity(result[0] as LdapUserModel);
+    } catch (error) {
+      console.error(error);
       throw new LdapServerException(
         error.message,
-        "LDAP_AUTHENTICATE_SERVER_ERROR"
+        "LDAP_GET_USER_SERVER_ERROR"
       );
     }
   }

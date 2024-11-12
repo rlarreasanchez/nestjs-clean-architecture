@@ -32,7 +32,42 @@ export class LdapService extends LdapClient implements OnModuleDestroy {
     return userPrincipalName;
   }
 
+  private async bindAdmin(): Promise<void> {
+    const adminUser = this.config.get("LDAP_ADMIN_USERNAME");
+    const adminPassword = this.config.get("LDAP_ADMIN_PASSWORD");
+
+    await super.bind(adminUser, adminPassword);
+  }
+
+  async search(
+    base: string,
+    options: LdapClient.SearchOptions
+  ): Promise<unknown[]> {
+    await this.bindAdmin();
+    return super.search(base, options);
+  }
+
+  async searchByUsername({
+    username,
+    isActive,
+  }: {
+    username: string;
+    isActive?: boolean;
+  }): Promise<unknown[]> {
+    const base = this.config.get("LDAP_BASE_DN");
+
+    const filterIsActive = isActive
+      ? "(!(userAccountControl:1.2.840.113556.1.4.803:=2))"
+      : "";
+
+    return this.search(base, {
+      filter: `(&(objectClass=user)(objectCategory=person)(cn=${username.toUpperCase()})${filterIsActive})`,
+      scope: "sub",
+    });
+  }
+
   async onModuleDestroy() {
-    await this.destroy();
+    await super.unbind();
+    await super.destroy();
   }
 }

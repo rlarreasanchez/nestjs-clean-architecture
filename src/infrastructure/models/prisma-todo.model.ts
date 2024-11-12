@@ -1,6 +1,6 @@
 import { Todo } from "@prisma/client";
 
-export class TodoModel implements Todo {
+export class PrismaTodoModel implements Todo {
   id: number;
   content: string;
   isDone: boolean;
