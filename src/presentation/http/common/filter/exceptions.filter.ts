@@ -10,6 +10,7 @@ import {
 import { ILogger } from "@domain/logger/logger.interface";
 import { LOGGER_SERVICE_TOKEN } from "@domain/constants/tokens.constants";
 import { ConfigService } from "@nestjs/config";
+import { ServerResponse } from "http";
 
 interface IError {
   message?: string;
@@ -44,7 +45,7 @@ export class AllExceptionFilter implements ExceptionFilter {
       },
       message:
         status >= HttpStatus.INTERNAL_SERVER_ERROR &&
-        this.config.get("NODE_ENV") === "development"
+        this.config.get("NODE_ENV") !== "development"
           ? "An internal server error occurred, please try again later"
           : message.message,
       errorToken: message.error,

@@ -23,3 +23,27 @@ export class DatabaseException extends HttpException {
     );
   }
 }
+
+export class LdapServerException extends HttpException {
+  constructor(error: string, errorToken?: string) {
+    super(
+      {
+        message: `LDAP server error: ${error}`,
+        error: errorToken,
+      },
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
+export class LdapInvalidCredentialsException extends HttpException {
+  constructor(error: string, errorToken?: string) {
+    super(
+      {
+        message: `LDAP invalid credentials: ${error}`,
+        error: errorToken,
+      },
+      HttpStatus.BAD_REQUEST
+    );
+  }
+}

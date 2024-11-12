@@ -5,9 +5,9 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class LoggerService extends Logger implements ILogger {
-  private readonly isDebugEnabled;
+  private readonly isDebugEnabled: boolean;
 
-  constructor(private config: ConfigService) {
+  constructor(private readonly config: ConfigService) {
     super();
     this.isDebugEnabled = this.config.get("DEBUG");
   }
