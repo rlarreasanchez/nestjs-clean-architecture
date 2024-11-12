@@ -9,8 +9,9 @@ import { AuthModule } from "@application/auth/auth.module";
 import { UserModule } from "@application/user/user.module";
 import { TodosModule } from "@application/todos/todos.module";
 
-import { TodosController } from "@presentation/http/todos/todos.controller";
 import { AuthController } from "@presentation/http/auth/auth.controller";
+import { TodosController } from "@presentation/http/todos/todos.controller";
+import { UsersController } from "@presentation/http/users/users.controller";
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { AuthController } from "@presentation/http/auth/auth.controller";
     AuthModule,
     UserModule,
   ],
-  controllers: [TodosController, AuthController],
+  controllers: [TodosController, AuthController, UsersController],
   providers: [],
 })
 export class AppModule {}

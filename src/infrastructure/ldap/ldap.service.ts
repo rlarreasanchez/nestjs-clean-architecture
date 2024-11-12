@@ -7,13 +7,23 @@ import {
 import { ConfigService } from "@nestjs/config";
 
 import LdapClient = require("ldapjs-client");
+
+import { GetAllUsersFilterDto } from "@domain/dtos/get-all-users-filter.dto";
+
 import { LdapLoggerService } from "./ldap-logger.service";
+import { LdapUserModel } from "@infrastructure/models/ldap-user.model";
+
+const FILTER_ACTIVATION = "(userAccountControl:1.2.840.113556.1.4.803:=2)";
+const FILTER_IS_ACTIVE = `(!${FILTER_ACTIVATION})`;
+const FILTER_IS_INACTIVE = `${FILTER_ACTIVATION}`;
 
 @Injectable()
 export class LdapService
   extends LdapClient
   implements OnModuleInit, OnModuleDestroy
 {
+  ldapUserProps: string[];
+
   constructor(
     private readonly config: ConfigService,
     private readonly logger: LdapLoggerService
@@ -25,6 +35,8 @@ export class LdapService
         rejectUnauthorized: false,
       },
     });
+    const ldapUserModelInstance = new LdapUserModel();
+    this.ldapUserProps = Object.keys(ldapUserModelInstance);
   }
 
   async bind(userPrincipalName: string, password: string): Promise<void> {
@@ -62,13 +74,38 @@ export class LdapService
   }): Promise<unknown[]> {
     const base = this.config.get("LDAP_BASE_DN");
 
-    const filterIsActive = isActive
-      ? "(!(userAccountControl:1.2.840.113556.1.4.803:=2))"
-      : "";
+    let filter = `(&(objectClass=user)(objectCategory=person)(cn=${username.toUpperCase()})`;
+    if (isActive !== undefined) {
+      filter += isActive ? FILTER_IS_ACTIVE : FILTER_IS_INACTIVE;
+    }
+    filter += `)`;
 
     return this.search(base, {
-      filter: `(&(objectClass=user)(objectCategory=person)(cn=${username.toUpperCase()})${filterIsActive})`,
+      filter,
       scope: "sub",
+      attributes: [...this.ldapUserProps],
+    });
+  }
+
+  async searchAllUsers({
+    active: isActive,
+    company,
+  }: GetAllUsersFilterDto): Promise<unknown[]> {
+    const base = this.config.get("LDAP_BASE_DN");
+
+    let filter = `(&(objectClass=user)(objectCategory=person)`;
+    if (isActive !== undefined) {
+      filter += isActive ? FILTER_IS_ACTIVE : FILTER_IS_INACTIVE;
+    }
+    if (company) {
+      filter += `(company=${company})`;
+    }
+    filter += ")";
+
+    return this.search(`OU=Usuarios,${base}`, {
+      filter,
+      scope: "sub",
+      attributes: [...this.ldapUserProps],
     });
   }
 
