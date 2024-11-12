@@ -30,6 +30,7 @@ import { AuthController } from "@presentation/http/auth/auth.controller";
         LDAP_ACCOUNT_SUFFIX: Joi.string().optional().allow(""),
         LDAP_ADMIN_USERNAME: Joi.string().required(),
         LDAP_ADMIN_PASSWORD: Joi.string().required(),
+        LDAP_DEBUG: Joi.boolean().default(false),
         COOKIE_SECRET: Joi.string().required().min(32),
         SESSION_SECRET: Joi.string().required().min(32),
         SESSION_EXPIRES_IN_SECONDS: Joi.number().optional().default(3600),

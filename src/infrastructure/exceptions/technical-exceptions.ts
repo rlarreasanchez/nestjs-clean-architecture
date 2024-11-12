@@ -43,7 +43,7 @@ export class LdapInvalidCredentialsException extends HttpException {
         message: `LDAP invalid credentials: ${error}`,
         error: errorToken,
       },
-      HttpStatus.UNAUTHORIZED
+      HttpStatus.BAD_REQUEST
     );
   }
 }
